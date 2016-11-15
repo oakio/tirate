@@ -48,13 +48,15 @@ func main() {
 	}
 
 	for _, rate := range envelop.Payload.Rates {
+		if rate.Category != "DebitCardsTransfers" {
+			continue
+		}
 
-		fmt.Printf("%s%s %v %v %s\n",
+		fmt.Printf("%s%s %v %v\n",
 			rate.FromCurrency.Name,
 			rate.ToCurrency.Name,
 			rate.Buy.StringFixed(2),
-			rate.Sell.StringFixed(2),
-			rate.Category)
+			rate.Sell.StringFixed(2))
 	}
 }
 
