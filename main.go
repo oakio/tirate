@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"time"
+
 	"github.com/shopspring/decimal"
 )
 
@@ -15,7 +17,12 @@ type envelope struct {
 }
 
 type payload struct {
-	Rates []rate
+	LastUpdate timestamp
+	Rates      []rate
+}
+
+type timestamp struct {
+	Milliseconds int64
 }
 
 type rate struct {
@@ -47,12 +54,17 @@ func main() {
 		log.Fatal("Rates loading failed. ResultCode = ", envelop.ResultCode)
 	}
 
-	for _, rate := range envelop.Payload.Rates {
+	payload := envelop.Payload
+
+	actualAt := time.Unix(payload.LastUpdate.Milliseconds/1000, 0)
+
+	for _, rate := range payload.Rates {
 		if rate.Category != "DebitCardsTransfers" {
 			continue
 		}
 
-		fmt.Printf("%s%s %v %v\n",
+		fmt.Printf("%s | %s%s %v %v\n",
+			actualAt.Format("15:04:05"),
 			rate.FromCurrency.Name,
 			rate.ToCurrency.Name,
 			rate.Buy.StringFixed(2),
